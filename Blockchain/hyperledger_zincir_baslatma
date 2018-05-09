@@ -1,0 +1,264 @@
+########################### gerekli uygulamaların kurulması.
+
+cd hyperledger
+mkdir lib
+cd ~/hyperledger/lib
+curl -sSL https://goo.gl/6wtTN5 | bash -s 1.1.0
+
+nano ~/hyperledger/myexport
+export GOPATH=~/hyperledger/fabricca
+export FABRIC_TOOL_PATH=~/hyperledger/lib/fabric-samples/bin
+export PATH=$PATH:~/hyperledger/fabricca/src/github.com/hyperledger/fabric-ca/bin:$FABRIC_TOOL_PATH
+export FABRIC_CA_HOME=~/hyperledger/fabricca/src/github.com/hyperledger/fabric-ca
+export FABRIC_CA_SERVER_HOME=~/hyperledger/server
+export FABRIC_CA_CLIENT_HOME=~/hyperledger/client
+
+
+
+source ~/hyperledger/myexport
+mkdir tedarik-zinciri
+cd tedarik-zinciri
+
+
+
+rm -rf config/*
+rm -rf crypto-config/*
+
+mkdir config
+
+
+nano crypto-config.yaml
+######################## CRYPTO CONFIG FILE #########################
+
+
+OrdererOrgs:
+  # ---------------------------------------------------------------------------
+  # Orderer Market
+  # ---------------------------------------------------------------------------
+  - Name: OrdererMarket
+    Domain: tedarikzinciri.com
+    Specs:
+      - Hostname: orderermarket
+
+ # ---------------------------------------------------------------------------
+  # Orderer Tedarikçi 1
+  # ---------------------------------------------------------------------------
+  - Name: OrdererTedarikci1
+    Domain: tedarikzinciri.com
+    Specs:
+      - Hostname: orderertedarikci1
+
+# ---------------------------------------------------------------------------
+  # Orderer Tedarikçi 2
+  # ---------------------------------------------------------------------------
+  - Name: OrdererTedarikci2
+    Domain: tedarikzinciri.com
+    Specs:
+      - Hostname: orderertedarikci2
+
+# ---------------------------------------------------------------------------
+# "PeerOrgs"
+# ---------------------------------------------------------------------------
+PeerOrgs:
+  # ---------------------------------------------------------------------------
+  # market
+  # ---------------------------------------------------------------------------
+  - Name: market
+    Domain: market.tedarikzinciri.com  
+    Template:
+      Count: 1
+      # Start: 5
+      # Hostname: {{.Prefix}}{{.Index}} # default  
+    Users:
+      Count: 1
+
+  - Name: tedarikci1
+    Domain: tedarikci1.tedarikzinciri.com  
+    Template:
+      Count: 1
+      # Start: 5
+      # Hostname: {{.Prefix}}{{.Index}} # default  
+    Users:
+      Count: 1
+
+  - Name: tedarikci2
+    Domain: tedarikci2.tedarikzinciri.com  
+    Template:
+      Count: 1
+      # Start: 5
+      # Hostname: {{.Prefix}}{{.Index}} # default  
+    Users:
+      Count: 1
+
+######################## CRYPTO CONFIG FILE END #########################
+
+# generate crypto material
+source ~/hyperledger/myexport
+cryptogen generate --config=./crypto-config.yaml
+
+
+nano configtx.yaml
+
+######################## CONFIG FILE END #########################
+Profiles:
+
+    ThreeOrgOrdererGenesis:
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererMarket
+                - *OrdererTedarikci1
+                - *OrdererTedarikci2
+        Consortiums:
+            TedarikZinciriConsortium:
+                Organizations:
+                    - *market
+                    - *tedarikci1
+                    - *tedarikci2
+    ThreeOrgChannel:
+        Consortium: TedarikZinciriConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *market
+                - *tedarikci1
+                - *tedarikci2
+
+Organizations:  
+    - &OrdererMarket        
+        Name: OrdererMarket
+        ID: OrdererMSP
+        MSPDir: crypto-config/ordererOrganizations/tedarikzinciri.com/orderers/orderermarket.tedarikzinciri.com/msp
+
+    - &OrdererTedarikci1   
+        Name: OrdererTedarikci1
+        ID: OrdererTedarikci1MSP
+        MSPDir: crypto-config/ordererOrganizations/tedarikzinciri.com/orderers/orderertedarikci1.tedarikzinciri.com/msp
+
+    - &OrdererTedarikci2   
+        Name: OrdererTedarikci2
+        ID: OrdererTedarikci2MSP
+        MSPDir: crypto-config/ordererOrganizations/tedarikzinciri.com/orderers/orderertedarikci2.tedarikzinciri.com/msp
+
+    - &market       
+        Name: MarketMSP
+        ID: MarketMSP
+        MSPDir: crypto-config/peerOrganizations/market.tedarikzinciri.com/msp
+
+        AnchorPeers:          
+            - Host: market.tedarikzinciri.com
+              Port: 7051
+
+    - &tedarikci1       
+        Name: Tedarikci1MSP
+        ID: Tedarikci1MSP
+        MSPDir: crypto-config/peerOrganizations/tedarikci1.tedarikzinciri.com/msp
+        AnchorPeers:          
+            - Host: tedarikci1.tedarikzinciri.com
+              Port: 7052
+
+    - &tedarikci2       
+        Name: Tedarikci2MSP
+        ID: Tedarikci2MSP
+        MSPDir: crypto-config/peerOrganizations/tedarikci2.tedarikzinciri.com/msp
+
+        AnchorPeers:          
+            - Host: tedarikci2.tedarikzinciri.com
+              Port: 7053
+
+Orderer: &OrdererDefaults
+
+    # Orderer Type: The orderer implementation to start
+    # Available types are "solo" and "kafka"
+    OrdererType: solo
+
+    Addresses:
+        - orderermarket.tedarikzinciri.com:7061
+        - orderertedarikci1.tedarikzinciri.com:7062
+        - orderertedarikci2.tedarikzinciri.com:7063
+
+    # Batch Timeout: The amount of time to wait before creating a batch
+    BatchTimeout: 2s
+
+    # Batch Size: Controls the number of messages batched into a block
+    BatchSize:
+
+        # Max Message Count: The maximum number of messages to permit in a batch
+        MaxMessageCount: 10
+
+        # Absolute Max Bytes: The absolute maximum number of bytes allowed for
+        # the serialized messages in a batch.
+        AbsoluteMaxBytes: 99 MB
+
+        # Preferred Max Bytes: The preferred maximum number of bytes allowed for
+        # the serialized messages in a batch. A message larger than the preferred
+        # max bytes will result in a batch larger than preferred max bytes.
+        PreferredMaxBytes: 512 KB
+
+    Kafka:
+        # Brokers: A list of Kafka brokers to which the orderer connects
+        # NOTE: Use IP:port notation
+        Brokers:
+            - 127.0.0.1:9092
+
+    # Organizations is the list of orgs which are defined as participants on
+    # the orderer side of the network
+    Organizations:
+
+
+Application: &ApplicationDefaults
+
+    # Organizations is the list of orgs which are defined as participants on
+    # the application side of the network
+    Organizations:
+
+######################## CONFIG FILE END #########################
+
+# generate genesis block for orderer
+configtxgen -profile ThreeOrgOrdererGenesis -outputBlock ./config/genesis.block
+
+
+# generate channel configuration transaction
+configtxgen -profile ThreeOrgChannel -outputCreateChannelTx ./config/channel.tx -channelID TEDARIK_ZINCIRI_KANAL
+
+
+# generate anchor peer transaction
+configtxgen -profile ThreeOrgChannel -outputAnchorPeersUpdate ./config/MarketMSPanchors.tx -channelID TEDARIK_ZINCIRI_KANAL -asOrg MarketMSP
+configtxgen -profile ThreeOrgChannel -outputAnchorPeersUpdate ./config/Tedarikci1MSPanchors.tx -channelID TEDARIK_ZINCIRI_KANAL -asOrg Tedarikci1MSP
+configtxgen -profile ThreeOrgChannel -outputAnchorPeersUpdate ./config/Tedarikci2MSPanchors.tx -channelID TEDARIK_ZINCIRI_KANAL -asOrg Tedarikci2MSP
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+cihan@cihan-pc:~/Documents/Cihan/Yüksek Lisans Ahmet Yesevi Ünv/2. Dönem/Dönem Projesi/Proje/Blockchain/tedarik-zinciri/artifacts/channel$ cryptogen generate --config=./crypto-config.yaml
+cryptogen: error: open ./crypto-config.yaml: no such file or directory, try --help
+cihan@cihan-pc:~/Documents/Cihan/Yüksek Lisans Ahmet Yesevi Ünv/2. Dönem/Dönem Projesi/Proje/Blockchain/tedarik-zinciri/artifacts/channel$ cryptogen generate --config=crypto-config.yaml
+cryptogen: error: open crypto-config.yaml: no such file or directory, try --help
+cihan@cihan-pc:~/Documents/Cihan/Yüksek Lisans Ahmet Yesevi Ünv/2. Dönem/Dönem Projesi/Proje/Blockchain/tedarik-zinciri/artifacts/channel$ cryptogen generate --config=cryptogen.yaml
+market.tedarikzinciri.com
+tedarikci1.tedarikzinciri.com
+cihan@cihan-pc:~/Documents/Cihan/Yüksek Lisans Ahmet Yesevi Ünv/2. Dönem/Dönem Projesi/Proje/Blockchain/tedarik-zinciri/artifacts/channel$ 
+cihan@cihan-pc:~/Documents/Cihan/Yüksek Lisans Ahmet Yesevi Ünv/2. Dönem/Dönem Projesi/Proje/Blockchain/tedarik-zinciri/artifacts/channel$ 
+cihan@cihan-pc:~/Documents/Cihan/Yüksek Lisans Ahmet Yesevi Ünv/2. Dönem/Dönem Projesi/Proje/Blockchain/tedarik-zinciri/artifacts/channel$ configtxgen -profile TwoOrgsOrdererGenesis -outputBlock genesis.block
+2018-05-03 15:05:26.818 +03 [common/tools/configtxgen] main -> INFO 001 Loading configuration
+2018-05-03 15:05:26.825 +03 [common/tools/configtxgen] doOutputBlock -> INFO 002 Generating genesis block
+2018-05-03 15:05:26.826 +03 [common/tools/configtxgen] doOutputBlock -> INFO 003 Writing genesis block
+cihan@cihan-pc:~/Documents/Cihan/Yüksek Lisans Ahmet Yesevi Ünv/2. Dönem/Dönem Projesi/Proje/Blockchain/tedarik-zinciri/artifacts/channel$ 
+cihan@cihan-pc:~/Documents/Cihan/Yüksek Lisans Ahmet Yesevi Ünv/2. Dönem/Dönem Projesi/Proje/Blockchain/tedarik-zinciri/artifacts/channel$ 
+cihan@cihan-pc:~/Documents/Cihan/Yüksek Lisans Ahmet Yesevi Ünv/2. Dönem/Dönem Projesi/Proje/Blockchain/tedarik-zinciri/artifacts/channel$ 
+cihan@cihan-pc:~/Documents/Cihan/Yüksek Lisans Ahmet Yesevi Ünv/2. Dönem/Dönem Projesi/Proje/Blockchain/tedarik-zinciri/artifacts/channel$ configtxgen -profile TwoOrgsChannel -outputCreateChannelTx channel.tx -channelID mychannel
+2018-05-03 15:06:22.256 +03 [common/tools/configtxgen] main -> INFO 001 Loading configuration
+2018-05-03 15:06:22.262 +03 [common/tools/configtxgen] doOutputChannelCreateTx -> INFO 002 Generating new channel configtx
+2018-05-03 15:06:22.280 +03 [common/tools/configtxgen] doOutputChannelCreateTx -> INFO 003 Writing new channel tx
+cihan@cihan-pc:~/Documents/Cihan/Yüksek Lisans Ahmet Yesevi Ünv/2. Dönem/Dönem Projesi/Proje/Blockchain/tedarik-zinciri/artifacts/channel$ 
+

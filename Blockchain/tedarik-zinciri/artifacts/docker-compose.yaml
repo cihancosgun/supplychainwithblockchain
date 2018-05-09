@@ -1,0 +1,129 @@
+version: '2'
+
+services:
+
+  ca.market.tedarikzinciri.com:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-market
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.market.tedarikzinciri.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/3856267cd6b1190087c6cf5bd8191d940ce906e1cdf3ac55214dfdcd339f20ce_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.market.tedarikzinciri.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/3856267cd6b1190087c6cf5bd8191d940ce906e1cdf3ac55214dfdcd339f20ce_sk
+    ports:
+      - "7054:7054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./channel/crypto-config/peerOrganizations/market.tedarikzinciri.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peermarket
+
+  ca.tedarikci1.tedarikzinciri.com:
+    image: hyperledger/fabric-ca
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+      - FABRIC_CA_SERVER_CA_NAME=ca-tedarikci1
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.tedarikci1.tedarikzinciri.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/e1b7faaca158fec0bfa59036d45a17d391593b1a597d69050c1615f4297c3dc7_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.tedarikci1.tedarikzinciri.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/e1b7faaca158fec0bfa59036d45a17d391593b1a597d69050c1615f4297c3dc7_sk
+    ports:
+      - "8054:7054"
+    command: sh -c 'fabric-ca-server start -b admin:adminpw -d'
+    volumes:
+      - ./channel/crypto-config/peerOrganizations/tedarikci1.tedarikzinciri.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    container_name: ca_peertedarikci1
+
+  orderer.tedarikzinciri.com:
+    container_name: orderer.tedarikzinciri.com
+    image: hyperledger/fabric-orderer
+    environment:
+      - ORDERER_GENERAL_LOGLEVEL=debug
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/configtx/genesis.block
+      - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/crypto/orderer/msp
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/etc/hyperledger/crypto/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/etc/hyperledger/crypto/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/etc/hyperledger/crypto/orderer/tls/ca.crt, /etc/hyperledger/crypto/peermarket/tls/ca.crt, /etc/hyperledger/crypto/peertedarikci1/tls/ca.crt]
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderers
+    command: orderer
+    ports:
+      - 7050:7050
+    volumes:
+        - ./channel:/etc/hyperledger/configtx
+        - ./channel/crypto-config/ordererOrganizations/tedarikzinciri.com/orderers/orderer.tedarikzinciri.com/:/etc/hyperledger/crypto/orderer
+        - ./channel/crypto-config/peerOrganizations/market.tedarikzinciri.com/peers/peer0.market.tedarikzinciri.com/:/etc/hyperledger/crypto/peermarket
+        - ./channel/crypto-config/peerOrganizations/tedarikci1.tedarikzinciri.com/peers/peer0.tedarikci1.tedarikzinciri.com/:/etc/hyperledger/crypto/peertedarikci1
+
+  peer0.market.tedarikzinciri.com:
+    container_name: peer0.market.tedarikzinciri.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.market.tedarikzinciri.com
+      - CORE_PEER_LOCALMSPID=marketMSP
+      - CORE_PEER_ADDRESS=peer0.market.tedarikzinciri.com:7051
+    ports:
+      - 7051:7051
+      - 7053:7053
+    volumes:
+        - ./channel/crypto-config/peerOrganizations/market.tedarikzinciri.com/peers/peer0.market.tedarikzinciri.com/:/etc/hyperledger/crypto/peer
+    depends_on:
+      - orderer.tedarikzinciri.com
+
+  peer1.market.tedarikzinciri.com:
+    container_name: peer1.market.tedarikzinciri.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.market.tedarikzinciri.com
+      - CORE_PEER_LOCALMSPID=marketMSP
+      - CORE_PEER_ADDRESS=peer1.market.tedarikzinciri.com:7051
+    ports:
+      - 7056:7051
+      - 7058:7053
+    volumes:
+        - ./channel/crypto-config/peerOrganizations/market.tedarikzinciri.com/peers/peer1.market.tedarikzinciri.com/:/etc/hyperledger/crypto/peer
+    depends_on:
+      - orderer.tedarikzinciri.com
+
+  peer0.tedarikci1.tedarikzinciri.com:
+    container_name: peer0.tedarikci1.tedarikzinciri.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.tedarikci1.tedarikzinciri.com
+      - CORE_PEER_LOCALMSPID=tedarikci1MSP
+      - CORE_PEER_ADDRESS=peer0.tedarikci1.tedarikzinciri.com:7051
+    ports:
+      - 8051:7051
+      - 8053:7053
+    volumes:
+        - ./channel/crypto-config/peerOrganizations/tedarikci1.tedarikzinciri.com/peers/peer0.tedarikci1.tedarikzinciri.com/:/etc/hyperledger/crypto/peer
+    depends_on:
+      - orderer.tedarikzinciri.com
+
+  peer1.tedarikci1.tedarikzinciri.com:
+    container_name: peer1.tedarikci1.tedarikzinciri.com
+    extends:
+      file:   base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.tedarikci1.tedarikzinciri.com
+      - CORE_PEER_LOCALMSPID=tedarikci1MSP
+      - CORE_PEER_ADDRESS=peer1.tedarikci1.tedarikzinciri.com:7051
+    ports:
+      - 8056:7051
+      - 8058:7053
+    volumes:
+        - ./channel/crypto-config/peerOrganizations/tedarikci1.tedarikzinciri.com/peers/peer1.tedarikci1.tedarikzinciri.com/:/etc/hyperledger/crypto/peer
+    depends_on:
+      - orderer.tedarikzinciri.com

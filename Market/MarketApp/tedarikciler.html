@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html ng-app="tedarikcilerApp">
+
+<head>
+    <title>MARKET UYGULAMASI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/tedarikciler.js"></script>
+</head>
+
+<body ng-controller="myCtrl">
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">MARKET UYGULAMASI</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="index.html">Ana Sayfa
+                        </a>
+                    </li>
+                    <li>
+                        <a href="urunler.html">Ürünler</a>
+                    </li>
+                    <li>
+                        <a href="musteriler.html">Müşteriler</a>
+                    </li>
+                    <li class="active">
+                        <a href="tedarikciler.html">Tedarikçiler</a>
+                    </li>
+                    <li>
+                        <a href="satis.html">Satış Faturası</a>
+                    </li>
+                    <li>
+                        <a href="siparis.html">Sipariş</a>
+                    </li>                    
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+            <div class="panel panel-default">
+            </div>
+
+            <div class="panel panel-default">
+
+                <button type="button" class="btn btn-primary" ng-click="yeni()">Yeni Tedarikçi Ekle</button>
+            </div>
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    Tedarikçiler
+                </div>
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Tedarikçi Adı</th>
+                                <th scope="col">Telefon</th>
+                                <th scope="col">Adres</th>
+                                <th scope="col">Vergi Dairesi</th>
+                                <th scope="col">Vergi No.</th>
+                                <th scope="col">#</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="tedarikci in tedarikciler">
+                                <th scope="row">{{tedarikci.tedarikci_id}}</th>
+                                <td>{{tedarikci.tedarikci_adi}}</td>
+                                <td>{{tedarikci.tedarikci_telefon}}</td>
+                                <td>{{tedarikci.tedarikci_adres}}</td>
+                                <td>{{tedarikci.tedarikci_vergi_dairesi}}</td>
+                                <td>{{tedarikci.tedarikci_vergi_no}}</td>
+                                <td>
+                                    <button type="button" class="btn btn-primary" ng-click="guncelle(tedarikci)">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary" ng-click="sil(tedarikci)">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- /.container-fluid end-->
+    </nav>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Tedarikçi</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="tedarikci_adi">Tedarikçi Adı:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="tedarikci_adi" ng-model="data.tedarikci_adi" placeholder="Tedarikçi adı">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="tedarikci_telefon">Telefon:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="tedarikci_telefon" ng-model="data.tedarikci_telefon" placeholder="Telefon">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="tedarikci_adres">Adres:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="tedarikci_adres" ng-model="data.tedarikci_adres" placeholder="Adres">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="tedarikci_vergi_dairesi">Vergi Dairesi:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="tedarikci_vergi_dairesi" ng-model="data.tedarikci_vergi_dairesi" placeholder="Vergi Dairesi">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="tedarikci_vergi_no">Vergi No. :</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="tedarikci_vergi_no" ng-model="data.tedarikci_vergi_no" placeholder="Vergi No.">
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" ng-click="kaydet()">Kaydet</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Modal END -->
+</body>
+
+</html>

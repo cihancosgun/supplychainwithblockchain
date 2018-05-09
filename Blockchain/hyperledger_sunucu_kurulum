@@ -1,0 +1,119 @@
+#################################################################### KURULUM #############################################
+
+cd /home/cihan/hyperledger
+mkdir fabricca
+cd fabricca
+mkdir src/
+mkdir src/github.com
+mkdir src/github.com/hyperledger
+
+cd ~/hyperledger/fabricca/src/github.com/hyperledger
+
+git clone https://github.com/hyperledger/fabric-ca.git
+
+
+cd ~/hyperledger/fabricca/src/github.com/hyperledger/fabric-ca 
+
+make fabric-ca-server
+make fabric-ca-client
+
+cd /home/cihan/hyperledger
+mkdir server
+mkdir client
+
+nano ~/hyperledger/myexport
+
+#add this line
+export GOPATH=~/hyperledger/fabricca
+export PATH=$PATH:~/hyperledger/fabricca/src/github.com/hyperledger/fabric-ca/bin
+export FABRIC_CA_HOME=~/hyperledger/fabricca/src/github.com/hyperledger/fabric-ca
+export FABRIC_CA_SERVER_HOME=~/hyperledger/server  
+export FABRIC_CA_CLIENT_HOME=~/hyperledger/client
+
+
+source ~/hyperledger/myexport
+cd /home/cihan/hyperledger/server
+fabric-ca-server init -b "admin:adminpw"
+
+
+#################################################################### AYAR DOSYASI  ################################################
+#sunucu ayar dosyasını düzenleyin;
+nano fabric-ca-server-config.yaml
+
+
+  # Contains identity information which is used when LDAP is disabled
+  identities:
+     - name: admin
+       pass: adminpw
+       type: client
+       affiliation: ""
+       attrs:
+          hf.Registrar.Roles: "peer,orderer,client,user"
+          hf.Registrar.DelegateRoles: "peer,orderer,client,user"
+          hf.Revoker: true
+          hf.IntermediateCA: true
+          hf.GenCRL: true
+          hf.Registrar.Attributes: "*"
+          hf.AffiliationMgr: true
+
+
+
+affiliations: 
+   market:
+      - satinalma  
+   tedarikci1:
+      - satis      
+   tedarikci2:
+      - satis
+
+
+
+
+#################################################################### AYAR DOSYASI SON #############################################
+
+
+source ~/hyperledger/myexport
+cd ~/hyperledger/server
+fabric-ca-server init -b "admin:adminpw"
+fabric-ca-server start -b "admin:adminpw"
+
+
+
+#market tarafı istemci yapılandırması
+source ~/hyperledger/myexport
+cd /home/cihan/hyperledger/client
+fabric-ca-client enroll -u "http://admin:adminpw@localhost:7054"
+fabric-ca-client register -u "http://localhost:7054" --id.name "marketsatinalma" --id.secret "1234" --id.type "client" --id.affiliation "market.satinalma"
+
+#id.name – Kullanıcının adı.
+#id.secret – Kullanıcının kayıt parolası.
+#id.affiliation – Kullanıcının bağlı olduğu kuruluş ve departman. Temel olarak kullanıcı izinlerini ayırmak için kullanılır.
+#id.type – Kullanıcının türü. Normalde “client” kullanıyoruz, ancak bir kullanıcı peer, doğrulayıcı, denetçi, ca vb. olabilir.
+
+fabric-ca-client enroll -u "http://marketsatinalma:1234@localhost:7054"
+
+
+
+#tedarikçi tarafı istemci yapılandırması
+cd /home/cihan/hyperledger/client
+
+source ~/hyperledger/myexport
+mkdir /home/cihan/hyperledger/tedarikciclient
+cd /home/cihan/hyperledger/tedarikciclient
+export FABRIC_CA_CLIENT_HOME=~/hyperledger/tedarikciclient
+fabric-ca-client enroll -u "http://admin:adminpw@localhost:7054"
+fabric-ca-client -u "http://localhost:7054" affiliation add tedarikci1.siparis
+fabric-ca-client register -u "http://localhost:7054" --id.name "tedarikci1siparis" --id.secret "1234" --id.type "client" --id.affiliation "tedarikci1.siparis"
+
+fabric-ca-client enroll -u "http://tedarikci1siparis:1234@localhost:7054"
+
+#Böylece, kullanıcının başarıyla kaydettirilmesiyle, çıktıları belirtilen dizinde public/private key’leri alabilirsiniz.
+
+#Tebrikler! Hyperledger Fabric Client kurulumu tamamlanmış oldu! Kendi Hyperledger kurulumunuzu başarıyla tamamladınız!
+
+
+#################################################################### KURULUM SON #############################################
+
+
+
+

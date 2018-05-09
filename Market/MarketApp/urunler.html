@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html ng-app="urunlerApp">
+
+<head>
+    <title>MARKET UYGULAMASI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/urunler.js"></script>
+</head>
+
+<body ng-controller="myCtrl">
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">MARKET UYGULAMASI</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="index.html">Ana Sayfa
+                        </a>
+                    </li>
+                    <li class="active">
+                        <a href="urunler.html">Ürünler</a>
+                    </li>
+                    <li>
+                        <a href="musteriler.html">Müşteriler</a>
+                    </li>
+                    <li>
+                        <a href="tedarikciler.html">Tedarikçiler</a>
+                    </li>
+                    <li>
+                        <a href="satis.html">Satış Faturası</a>
+                    </li>
+                    <li>
+                        <a href="siparis.html">Sipariş</a>
+                    </li>                   
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+            <div class="panel panel-default">
+            </div>
+
+            <div class="panel panel-default">
+
+                <button type="button" class="btn btn-primary" ng-click="yeni()">Yeni Ürün Ekle</button>
+            </div>
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    Ürünler
+                </div>
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Ürün Adı</th>
+                                <th scope="col">Ürün Cinsi</th>
+                                <th scope="col">Fiyatı</th>
+                                <th scope="col">Mevcut</th>
+                                <th scope="col">Kritik Miktar</th>
+                                <th scope="col">#</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="urun in urunler" ng-style="getUrunSatirClass(urun)">
+                                <th scope="row">{{urun.urun_id}}</th>
+                                <td>{{urun.urun_adi}}</td>
+                                <td>{{urun.urun_cinsi}}</td>
+                                <td>{{urun.urun_fiyat}}</td>
+                                <td>{{urun.urun_miktar}}</td>
+                                <td>{{urun.urun_kritik_miktar}}</td>
+                                <td>
+                                    <button type="button" class="btn btn-primary" ng-click="guncelle(urun)">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary" ng-click="sil(urun)">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- /.container-fluid end-->
+    </nav>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Ürün</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-horizontal">
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="urun_adi">Ürün Adı:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="urun_adi" ng-model="data.urun_adi" placeholder="Ürün adı">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="urun_cinsi">Ürün Cinsi:</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="urun_cinsi" ng-model="data.urun_cinsi" placeholder="Ürün cinsi">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="urun_fiyat">Ürün Fiyatı:</label>
+                            <div class="col-sm-10">
+                                <input type="number" class="form-control" id="urun_fiyat" ng-model="data.urun_fiyat" placeholder="Ürün Fiyatı">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="urun_miktar">Ürün Mevcudu:</label>
+                            <div class="col-sm-10">
+                                <input type="number" class="form-control" id="urun_miktar" ng-model="data.urun_miktar" placeholder="Ürün Mevcudu">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label col-sm-2" for="urun_kritik_miktar">Kritik Miktar:</label>
+                            <div class="col-sm-10">
+                                <input type="number" class="form-control" id="urun_kritik_miktar" ng-model="data.urun_kritik_miktar" placeholder="Kritik Miktar">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" ng-click="kaydet()">Kaydet</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Modal END -->
+</body>
+
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "tedarikciserver",
+  "version": "1.0.0",
+  "description": "tedarikci uygulama sunucusu",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "cihancosgun",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
+    "dateformat": "^3.0.3",
+    "express": "^4.16.2",
+    "http": "0.0.0",
+    "mysql": "^2.15.0"
+  }
+}

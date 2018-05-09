@@ -1,0 +1,79 @@
+
+Profiles:
+
+    TwoOrgsOrdererGenesis:
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+        Consortiums:
+            TedarikZinciriConsortium:
+                Organizations:
+                    - *market
+                    - *tedarikci1
+    TwoOrgsChannel:
+        Consortium: TedarikZinciriConsortium
+        Application:
+            <<: *ApplicationDefaults
+            Organizations:
+                - *market
+                - *tedarikci1
+
+
+Organizations:
+
+    - &OrdererOrg
+        Name: OrdererMSP
+
+        ID: OrdererMSP
+
+        MSPDir: crypto-config/ordererOrganizations/tedarikzinciri.com/msp
+
+    - &market
+        Name: marketMSP
+
+        ID: marketMSP
+
+        MSPDir: crypto-config/peerOrganizations/market.tedarikzinciri.com/msp
+
+        AnchorPeers:
+            - Host: peer0.market.tedarikzinciri.com
+              Port: 7051
+
+    - &tedarikci1
+        Name: tedarikci1MSP
+        
+        ID: tedarikci1MSP
+
+        MSPDir: crypto-config/peerOrganizations/tedarikci1.tedarikzinciri.com/msp
+
+        AnchorPeers:
+            - Host: peer0.tedarikci1.tedarikzinciri.com
+              Port: 7051
+
+Orderer: &OrdererDefaults
+    
+    OrdererType: solo
+
+    Addresses:
+        - orderer.tedarikzinciri.com:7050
+
+    BatchTimeout: 2s
+
+    BatchSize:
+
+        MaxMessageCount: 10
+
+        AbsoluteMaxBytes: 98 MB
+
+        PreferredMaxBytes: 512 KB
+
+    Kafka:
+        Brokers:
+            - 127.0.0.1:9092
+
+    Organizations:
+
+Application: &ApplicationDefaults
+
+    Organizations:

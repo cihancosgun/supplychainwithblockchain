@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html ng-app="siparisApp">
+
+<head>
+    <title>TEDARİKÇİ UYGULAMASI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/siparis.js"></script>
+</head>
+
+<body ng-controller="myCtrl">
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">TEDARİKÇİ UYGULAMASI</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li >
+                        <a href="index.html">Ana Sayfa
+                        </a>
+                    </li>                    
+                    <li class="active">
+                        <a href="siparis.html">Sipariş</a>
+                    </li>
+                </ul>
+
+            </div>
+            <!-- /.navbar-collapse -->
+            <div class="panel panel-default">
+            </div>
+          
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    Siparişler
+                </div>
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sipariş No.</th>
+                                <th scope="col">Sipariş Durumu</th>
+                                <th scope="col">Tedarikçi Adı</th>                              
+                                <th scope="col">#</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="row in siparis">
+                                <th scope="row">{{row.Key}}</th>                                
+                                <td>{{row.Record.durum}}</td>
+                                <td>{{row.Record.tedarikci_adi}}</td>                              
+                                <td>
+                                    <button type="button" class="btn btn-primary" ng-click="guncelle(row)">
+                                        <span class="glyphicon glyphicon-edit"></span> Kalemler
+                                    </button>
+                                    <button type="button" class="btn btn-primary" ng-click="siparisGonder(row)">
+                                        <span class="glyphicon glyphicon-send"></span> Siparişi Gönder
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- /.container-fluid end-->
+    </nav>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Sipariş</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form">                           
+
+                                                      
+                            <div class="form-row">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Ürün Adı</th>
+                                            <th>Miktar</th>                                           
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="r in data.kalemler">                                            
+                                            <td>{{r.urun_adi}}</td>
+                                            <td>
+                                               {{r.urun_miktar}}
+                                            </td>                                           
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Modal END -->
+</body>
+
+</html>

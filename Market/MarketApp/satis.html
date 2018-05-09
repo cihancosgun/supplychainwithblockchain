@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html ng-app="satisApp">
+
+<head>
+    <title>MARKET UYGULAMASI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/satis.js"></script>
+</head>
+
+<body ng-controller="myCtrl">
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">MARKET UYGULAMASI</a>
+            </div>
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="index.html">Ana Sayfa
+                        </a>
+                    </li>
+                    <li>
+                        <a href="urunler.html">Ürünler</a>
+                    </li>
+                    <li>
+                        <a href="musteriler.html">Müşteriler</a>
+                    </li>
+                    <li>
+                        <a href="tedarikciler.html">Tedarikçiler</a>
+                    </li>
+                    <li class="active">
+                        <a href="satis.html">Satış Faturası</a>
+                    </li>
+                    <li>
+                        <a href="siparis.html">Sipariş</a>
+                    </li>                    
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+            <div class="panel panel-default">
+            </div>
+
+            <div class="panel panel-default">
+
+                <button type="button" class="btn btn-primary" ng-click="yeni()">Yeni Satış</button>
+            </div>
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    Satış
+                </div>
+                <div class="panel-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Fatura Tarihi</th>
+                                <th scope="col">Müşteri Adı</th>
+                                <th scope="col">Telefon</th>
+                                <th scope="col">Adres</th>
+                                <th scope="col">Vergi Dairesi</th>
+                                <th scope="col">Vergi No.</th>
+                                <th scope="col">#</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="row in satis">
+                                <th scope="row">{{row.fatura_id}}</th>
+                                <td>{{row.fatura_tarihi}}</td>
+                                <td>{{row.musteri_adi}}</td>
+                                <td>{{row.musteri_telefon}}</td>
+                                <td>{{row.musteri_adres}}</td>
+                                <td>{{row.musteri_vergi_dairesi}}</td>
+                                <td>{{row.musteri_vergi_no}}</td>
+                                <td>
+                                    <button type="button" class="btn btn-primary" ng-click="guncelle(row)">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </button>
+                                    <button type="button" class="btn btn-primary" ng-click="sil(row)">
+                                        <span class="glyphicon glyphicon-remove"></span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- /.container-fluid end-->
+    </nav>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-lg">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Satış</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="form">
+
+                            <div class="form-row">
+                                <div class="form-group col-md-12">
+                                    <label for="musteri_sec">Müşteri Seçiniz:</label>
+                                    <select class="form-control" id="musteri_sec" ng-options="item as item.musteri_adi for item in musteriler track by item.musteri_id"
+                                        ng-model="musteri" ng-change="setMusteri(musteri)">
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="musteri_adi">Müşteri Adı:</label>
+                                    <input type="text" class="form-control" id="musteri_adi" ng-model="data.musteri_adi" placeholder="Müşteri adı">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="fatura_tarihi">Fatura Tarihi:</label>
+                                    <input type="date" class="form-control" id="fatura_tarihi" ng-model="data.fatura_tarihi" placeholder="Fatura Tarihi">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="musteri_telefon">Telefon:</label>
+                                    <input type="text" class="form-control" id="musteri_telefon" ng-model="data.musteri_telefon" placeholder="Telefon">
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label for="musteri_adres">Adres:</label>
+                                    <input type="text" class="form-control" id="musteri_adres" ng-model="data.musteri_adres" placeholder="Adres">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="musteri_vergi_dairesi">Vergi Dairesi:</label>
+                                    <input type="text" class="form-control" id="musteri_vergi_dairesi" ng-model="data.musteri_vergi_dairesi" placeholder="Vergi Dairesi">
+                                </div>
+
+                                <div class="form-group col-md-6">
+                                    <label for="musteri_vergi_no">Vergi No. :</label>
+                                    <input type="text" class="form-control" id="musteri_vergi_no" ng-model="data.musteri_vergi_no" placeholder="Vergi No.">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <button type="button" class="btn btn-primary" ng-click="yeniSatir()">Ekle</button>
+                            </div>
+                            <div class="form-row">
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Ürün Seçim</th>
+                                            <th>Ürün Adı</th>
+                                            <th>Miktar</th>
+                                            <th>Fiyat</th>
+                                            <th>Tutar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="r in data.kalemler">
+                                            <td>
+                                                <select class="form-control" id="urun_sec" ng-options="item as item.urun_adi for item in urunler track by item.urun_id" ng-model="urun"
+                                                    ng-change="setUrun(urun, r)">
+                                                </select>
+                                            </td>
+                                            <td>{{r.urun_adi}}</td>
+                                            <td>
+                                                <input type="number" class="form-control" ng-model="r.urun_miktar" ng-change="setMiktarFiyat(r)" />
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control" ng-model="r.urun_fiyat" ng-change="setMiktarFiyat(r)"/>
+                                            </td>
+                                            <td>{{r.urun_tutar}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" ng-click="kaydet()">Kaydet</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Kapat</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <!-- Modal END -->
+</body>
+
+</html>
