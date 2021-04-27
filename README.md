@@ -37,6 +37,9 @@ node server.js
 ```
 
 Projeyi çalıştırırken herhangi bir sorunla karşılaşırsanız, iletişime geçmekten çekinmeyin.
+
 e-mail : cihancosgun55@hotmail.com
+
 Dönem Projesinin Tam Haline PDF Olarak aşağıdaki linkten erişebilirsiniz.
-[Dönem Projesi PDF](http://github.com/cihancosgun/supplychainwithblockchain/Cihan_Cosgun_Donem_Projesi_github.pdf)
+
+[Dönem Projesi PDF](https://github.com/cihancosgun/supplychainwithblockchain/blob/master/Cihan_Cosgun_Donem_Projesi_github.pdf)
